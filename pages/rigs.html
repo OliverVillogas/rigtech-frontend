@@ -35,47 +35,152 @@
         
         <!-- Formulario Crear/Editar Rig -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-bold mb-4">
+            <h2 class="text-2xl font-bold mb-6">
                 <span x-text="$store.rigsStore.isEditing ? '✏️ Editar Rig' : '➕ Crear Nuevo Rig'"></span>
             </h2>
             
             <form @submit.prevent="$store.rigsStore.saveRig()">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Título *</label>
-                        <input x-model="$store.rigsStore.rigForm.titulo" 
-                               type="text" 
-                               class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                               required
-                               placeholder="Mi Rig Gaming">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Imagen URL</label>
-                        <input x-model="$store.rigsStore.rigForm.imagen_principal_url" 
-                               type="text" 
-                               class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="https://ejemplo.com/imagen.jpg">
-                    </div>
-                    
-                    <div class="md:col-span-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Descripción</label>
-                        <textarea x-model="$store.rigsStore.rigForm.descripcion" 
-                                  class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
-                                  placeholder="Describe tu configuración..."></textarea>
+                <!-- Información básica -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-3 text-blue-600">📋 Información Básica</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Título del Setup *</label>
+                            <input x-model="$store.rigsStore.rigForm.titulo" 
+                                   type="text" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                   required
+                                   placeholder="Ej: Setup Gaming RGB 2024">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">URL de Imagen Principal</label>
+                            <input x-model="$store.rigsStore.rigForm.imagen_principal_url" 
+                                   type="url" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="https://ejemplo.com/imagen.jpg">
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Descripción</label>
+                            <textarea x-model="$store.rigsStore.rigForm.descripcion" 
+                                      class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
+                                      placeholder="Describe tu setup, características especiales, iluminación..."></textarea>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-4 flex gap-2">
+                <!-- Componentes -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-3 text-blue-600">🔧 Componentes del Rig</h3>
+                    
+                    <!-- Lista de componentes -->
+                    <div class="space-y-3 mb-4">
+                        <template x-for="(comp, index) in $store.rigsStore.rigForm.componentes" :key="index">
+                            <div class="flex gap-2 items-center bg-gray-50 p-3 rounded">
+                                <select x-model="comp.tipo" 
+                                        class="border rounded px-3 py-2 text-sm w-40">
+                                    <option value="">Tipo...</option>
+                                    <option value="CPU">🧠 CPU</option>
+                                    <option value="GPU">🎮 GPU</option>
+                                    <option value="RAM">💾 RAM</option>
+                                    <option value="Motherboard">⚡ Motherboard</option>
+                                    <option value="Storage">💿 Almacenamiento</option>
+                                    <option value="PSU">🔌 Fuente</option>
+                                    <option value="Case">📦 Gabinete</option>
+                                    <option value="Cooling">❄️ Refrigeración</option>
+                                    <option value="Monitor">🖥️ Monitor</option>
+                                    <option value="Keyboard">⌨️ Teclado</option>
+                                    <option value="Mouse">🖱️ Mouse</option>
+                                    <option value="Headset">🎧 Audífonos</option>
+                                </select>
+                                
+                                <input x-model="comp.modelo" 
+                                       type="text" 
+                                       placeholder="Modelo/Marca (Ej: RTX 4090, Ryzen 9 7950X)"
+                                       class="flex-1 border rounded px-3 py-2 text-sm">
+                                
+                                <button type="button" 
+                                        @click="$store.rigsStore.removeComponent(index)"
+                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm">
+                                    🗑️
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <button type="button" 
+                            @click="$store.rigsStore.addComponent()"
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-bold">
+                        ➕ Agregar Componente
+                    </button>
+                </div>
+
+                <!-- Rendimiento -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-3 text-blue-600">📊 Datos de Rendimiento</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">FPS (Promedio)</label>
+                            <input x-model="$store.rigsStore.rigForm.rendimiento.fps" 
+                                   type="number" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="144">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Temperatura CPU (°C)</label>
+                            <input x-model="$store.rigsStore.rigForm.rendimiento.temp_cpu" 
+                                   type="number" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="65">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Temperatura GPU (°C)</label>
+                            <input x-model="$store.rigsStore.rigForm.rendimiento.temp_gpu" 
+                                   type="number" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="70">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Consumo (Watts)</label>
+                            <input x-model="$store.rigsStore.rigForm.rendimiento.consumo" 
+                                   type="number" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="450">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Benchmark Score</label>
+                            <input x-model="$store.rigsStore.rigForm.rendimiento.benchmark" 
+                                   type="number" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="15000">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Precio Total ($)</label>
+                            <input x-model="$store.rigsStore.rigForm.rendimiento.precio_total" 
+                                   type="number" 
+                                   class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="2500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex gap-3 border-t pt-4">
                     <button type="submit" 
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition"
                             x-text="$store.rigsStore.isEditing ? '💾 Actualizar Rig' : '➕ Publicar Rig'">
                     </button>
                     
                     <button type="button" 
                             x-show="$store.rigsStore.isEditing" 
                             @click="$store.rigsStore.resetForm()"
-                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition">
                         ❌ Cancelar
                     </button>
                 </div>
@@ -83,41 +188,88 @@
         </div>
 
         <!-- Lista de Rigs -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <template x-for="rig in $store.rigsStore.rigs" :key="rig._id">
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
                     <!-- Imagen -->
-                    <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500">
+                    <div class="h-56 bg-gradient-to-br from-blue-400 to-purple-500 relative">
                         <template x-if="rig.imagen_principal_url">
                             <img :src="rig.imagen_principal_url" 
                                  class="w-full h-full object-cover"
                                  alt="Rig image">
                         </template>
                         <template x-if="!rig.imagen_principal_url">
-                            <div class="w-full h-full flex items-center justify-center text-white text-6xl">
+                            <div class="w-full h-full flex items-center justify-center text-white text-7xl">
                                 💻
                             </div>
                         </template>
+                        
+                        <!-- Badge de precio -->
+                        <div x-show="rig.rendimiento?.precio_total" 
+                             class="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                            💰 $<span x-text="rig.rendimiento?.precio_total"></span>
+                        </div>
                     </div>
                     
                     <!-- Contenido -->
-                    <div class="p-4">
-                        <h3 class="font-bold text-lg mb-1" x-text="rig.titulo"></h3>
-                        <p class="text-xs text-gray-500 mb-2">
-                            Por: <span x-text="rig.user_id?.username || 'Desconocido'"></span>
+                    <div class="p-5">
+                        <h3 class="font-bold text-xl mb-2" x-text="rig.titulo"></h3>
+                        <p class="text-xs text-gray-500 mb-3">
+                            👤 <span x-text="rig.user_id?.username || 'Desconocido'"></span> • 
+                            📅 <span x-text="new Date(rig.fecha_publicacion).toLocaleDateString('es-ES')"></span>
                         </p>
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-2" x-text="rig.descripcion || 'Sin descripción'"></p>
+                        <p class="text-gray-600 text-sm mb-4" x-text="rig.descripcion || 'Sin descripción'"></p>
+
+                        <!-- Componentes -->
+                        <div x-show="rig.componentes && rig.componentes.length > 0" class="mb-4">
+                            <h4 class="font-bold text-sm mb-2 text-gray-700">🔧 Componentes:</h4>
+                            <div class="space-y-1">
+                                <template x-for="comp in rig.componentes" :key="comp.tipo">
+                                    <div class="flex justify-between text-xs bg-gray-50 p-2 rounded">
+                                        <span class="font-semibold text-blue-600" x-text="comp.tipo"></span>
+                                        <span class="text-gray-700" x-text="comp.modelo"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Rendimiento -->
+                        <div x-show="rig.rendimiento && Object.keys(rig.rendimiento).length > 0" class="mb-4">
+                            <h4 class="font-bold text-sm mb-2 text-gray-700">📊 Rendimiento:</h4>
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <div x-show="rig.rendimiento?.fps" class="bg-blue-50 p-2 rounded text-center">
+                                    <div class="font-bold text-blue-600" x-text="rig.rendimiento?.fps"></div>
+                                    <div class="text-gray-600">FPS</div>
+                                </div>
+                                <div x-show="rig.rendimiento?.temp_cpu" class="bg-orange-50 p-2 rounded text-center">
+                                    <div class="font-bold text-orange-600" x-text="rig.rendimiento?.temp_cpu + '°C'"></div>
+                                    <div class="text-gray-600">CPU</div>
+                                </div>
+                                <div x-show="rig.rendimiento?.temp_gpu" class="bg-red-50 p-2 rounded text-center">
+                                    <div class="font-bold text-red-600" x-text="rig.rendimiento?.temp_gpu + '°C'"></div>
+                                    <div class="text-gray-600">GPU</div>
+                                </div>
+                                <div x-show="rig.rendimiento?.consumo" class="bg-yellow-50 p-2 rounded text-center">
+                                    <div class="font-bold text-yellow-600" x-text="rig.rendimiento?.consumo + 'W'"></div>
+                                    <div class="text-gray-600">Consumo</div>
+                                </div>
+                                <div x-show="rig.rendimiento?.benchmark" class="bg-purple-50 p-2 rounded text-center">
+                                    <div class="font-bold text-purple-600" x-text="rig.rendimiento?.benchmark"></div>
+                                    <div class="text-gray-600">Score</div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Acciones -->
                         <div class="flex justify-between items-center border-t pt-3">
                             <template x-if="$store.authStore.isOwner(rig.user_id)">
                                 <div class="flex gap-2">
                                     <button @click="$store.rigsStore.prepareEdit(rig)" 
-                                            class="text-green-600 hover:text-green-800 text-sm font-bold">
+                                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-bold transition">
                                         ✏️ Editar
                                     </button>
                                     <button @click="$store.rigsStore.deleteRig(rig._id)" 
-                                            class="text-red-500 hover:text-red-700 text-sm font-bold">
+                                            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm font-bold transition">
                                         🗑️ Borrar
                                     </button>
                                 </div>
