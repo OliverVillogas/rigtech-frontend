@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RigTech - Registro</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/stores/authStore.js"></script>
+    <script src="/stores/usersStore.js"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-500 to-pink-500 min-h-screen flex items-center justify-center p-4"
+      x-data x-init="$store.authStore.init(); $store.authStore.redirectIfLoggedIn()">
+    
+    <div class="bg-white rounded-lg shadow-2xl p-8 w-full max-w-lg">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-purple-600 mb-2">🚀 Únete a RigTech</h1>
+            <p class="text-gray-600">Crea tu cuenta para compartir tu setup</p>
+        </div>
+
+        <form @submit.prevent="$store.usersStore.registerUser()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Usuario *</label>
+                    <input x-model="$store.usersStore.userForm.username" 
+                           type="text" 
+                           class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                           required
+                           placeholder="tu_usuario">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Email *</label>
+                    <input x-model="$store.usersStore.userForm.email" 
+                           type="email" 
+                           class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                           required
+                           placeholder="tu@email.com">
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Contraseña *</label>
+                    <input x-model="$store.usersStore.userForm.password_hash" 
+                           type="password" 
+                           class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                           required
+                           placeholder="Tu contraseña">
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Bio</label>
+                    <textarea x-model="$store.usersStore.userForm.bio" 
+                              class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-500 h-20" 
+                              placeholder="Cuéntanos sobre ti y tu setup..."></textarea>
+                </div>
+            </div>
+
+            <button type="submit" 
+                    class="mt-6 w-full bg-purple-500 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded transition duration-200">
+                ✅ Crear Cuenta
+            </button>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-sm text-gray-600">
+                ¿Ya tienes cuenta? 
+                <a href="login.html" class="text-purple-600 hover:text-purple-800 font-semibold">Inicia sesión</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

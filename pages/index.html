@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RigTech - Feed</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/stores/authStore.js"></script>
+    <script src="/stores/postsStore.js"></script>
+</head>
+<body class="bg-gray-100" x-data x-init="$store.authStore.init(); $store.authStore.requireLogin(); $store.postsStore.load()">
+    
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">🖥️ RigTech</h1>
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="hover:text-gray-200 font-semibold">📰 Feed</a>
+                <a href="rigs.html" class="hover:text-gray-200">💻 Rigs</a>
+                <a href="users.html" class="hover:text-gray-200">👥 Users</a>
+                
+                <div class="flex items-center gap-2 ml-4">
+                    <span class="text-sm bg-blue-700 px-3 py-1 rounded" x-text="$store.authStore.currentUser?.username"></span>
+                    <button @click="$store.authStore.logout()" 
+                            class="text-sm bg-red-500 hover:bg-red-700 px-3 py-1 rounded">
+                        🚪 Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Feed Container -->
+    <div class="container mx-auto mt-8 px-4 max-w-2xl">
+        
+        <!-- Crear Post -->
+        <div class="bg-white rounded-lg shadow p-4 mb-6">
+            <div class="flex gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg">
+                    <span x-text="$store.authStore.currentUser?.username.charAt(0).toUpperCase()"></span>
+                </div>
+                <div class="flex-1">
+                    <textarea x-model="$store.postsStore.postForm.texto" 
+                        class="w-full border-gray-300 border rounded p-2 focus:outline-none focus:border-blue-500" 
+                        placeholder="¿Qué estás pensando sobre tu setup?"
+                        rows="3"></textarea>
+                    
+                    <div class="flex justify-between mt-2 items-center">
+                        <div class="flex gap-2">
+                            <select x-model="$store.postsStore.postForm.tipo" 
+                                    class="text-sm border rounded p-1">
+                                <option value="texto">📝 Texto</option>
+                                <option value="imagen">🖼️ Imagen</option>
+                                <option value="video">🎥 Video</option>
+                            </select>
+                            
+                            <input x-show="$store.postsStore.postForm.tipo !== 'texto'" 
+                                   x-model="$store.postsStore.postForm.contenido_url"
+                                   type="text" 
+                                   placeholder="URL del contenido" 
+                                   class="text-sm border rounded p-1 w-48">
+                        </div>
+                        <button @click="$store.postsStore.addPost()" 
+                                class="bg-blue-600 text-white px-4 py-1 rounded font-bold hover:bg-blue-700">
+                            📤 Publicar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Posts -->
+        <div class="space-y-6">
+            <template x-for="post in $store.postsStore.posts" :key="post._id">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <!-- Header del Post -->
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold">
+                                <span x-text="(post.user_id?.username || 'U').charAt(0).toUpperCase()"></span>
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-800" x-text="post.user_id?.username || 'Usuario'"></div>
+                                <div class="text-xs text-gray-500" x-text="new Date(post.fecha_publicacion).toLocaleDateString('es-ES')"></div>
+                            </div>
+                        </div>
+                        
+                        <template x-if="$store.authStore.isOwner(post.user_id)">
+                            <button @click="$store.postsStore.deletePost(post._id)" 
+                                    class="text-gray-400 hover:text-red-500 text-sm">
+                                🗑️
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- Contenido del Post -->
+                    <p class="text-gray-800 mb-3" x-text="post.texto"></p>
+                    
+                    <template x-if="post.tipo === 'imagen' && post.contenido_url">
+                        <img :src="post.contenido_url" 
+                             class="rounded-lg w-full mb-3 max-h-96 object-cover"
+                             alt="Post image">
+                    </template>
+                    
+                    <template x-if="post.tipo === 'video' && post.contenido_url">
+                        <div class="bg-gray-100 p-4 rounded mb-3">
+                            <a :href="post.contenido_url" target="_blank" class="text-blue-600 hover:underline">
+                                🎥 Ver video
+                            </a>
+                        </div>
+                    </template>
+
+                    <!-- Footer -->
+                    <div class="border-t pt-2 text-xs text-gray-500">
+                        <span x-text="post.tipo === 'imagen' ? '🖼️ Imagen' : (post.tipo === 'video' ? '🎥 Video' : '📝 Texto')"></span>
+                    </div>
+                </div>
+            </template>
+            
+            <!-- Estado vacío -->
+            <div x-show="$store.postsStore.posts.length === 0" 
+                 class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+                <p class="text-lg">📭 No hay publicaciones todavía</p>
+                <p class="text-sm mt-2">¡Sé el primero en compartir tu setup!</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

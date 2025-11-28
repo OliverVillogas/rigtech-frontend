@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RigTech - Login</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/stores/authStore.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen flex items-center justify-center"
+      x-data="loginData()" x-init="$store.authStore.init(); $store.authStore.redirectIfLoggedIn()">
+    
+    <div class="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-blue-600 mb-2">🖥️ RigTech</h1>
+            <p class="text-gray-600">Inicia sesión para compartir tu setup</p>
+        </div>
+
+        <form @submit.prevent="handleLogin">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Usuario</label>
+                <input x-model="username" 
+                       type="text" 
+                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       required
+                       placeholder="OliverVillogas">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Contraseña</label>
+                <input x-model="password" 
+                       type="password" 
+                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       required
+                       placeholder="hash_admin_1">
+            </div>
+
+            <button type="submit" 
+                    class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition duration-200"
+                    :disabled="loading"
+                    :class="{ 'opacity-50 cursor-not-allowed': loading }">
+                <span x-show="!loading">🔐 Entrar</span>
+                <span x-show="loading">⏳ Cargando...</span>
+            </button>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-sm text-gray-600">
+                ¿No tienes cuenta? 
+                <a href="signup.html" class="text-blue-600 hover:text-blue-800 font-semibold">Regístrate aquí</a>
+            </p>
+        </div>
+
+        <!-- Ayuda para pruebas -->
+        <div class="mt-8 p-4 bg-gray-100 rounded text-xs">
+            <p class="font-bold mb-2">👥 Usuarios de prueba:</p>
+            <p><strong>Admin:</strong> OliverVillogas / hash_admin_1</p>
+            <p><strong>Admin:</strong> AlbertoPonce / hash_admin_2</p>
+            <p><strong>Admin:</strong> KaelValentino / hash_admin_3</p>
+            <p><strong>User:</strong> ClaudiaM_25 / hash_user_1</p>
+        </div>
+    </div>
+
+    <script>
+        function loginData() {
+            return {
+                username: '',
+                password: '',
+                loading: false,
+
+                async handleLogin() {
+                    this.loading = true;
+                    
+                    const success = await this.$store.authStore.login(this.username, this.password);
+                    
+                    this.loading = false;
+
+                    if (success) {
+                        window.location.href = 'index.html';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

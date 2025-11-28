@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RigTech - Rigs</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/stores/authStore.js"></script>
+    <script src="/stores/rigsStore.js"></script>
+</head>
+<body class="bg-gray-100" x-data x-init="$store.authStore.init(); $store.authStore.requireLogin(); $store.rigsStore.load()">
+    
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">🖥️ RigTech</h1>
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="hover:text-gray-200">📰 Feed</a>
+                <a href="rigs.html" class="hover:text-gray-200 font-semibold">💻 Rigs</a>
+                <a href="users.html" class="hover:text-gray-200">👥 Users</a>
+                
+                <div class="flex items-center gap-2 ml-4">
+                    <span class="text-sm bg-blue-700 px-3 py-1 rounded" x-text="$store.authStore.currentUser?.username"></span>
+                    <button @click="$store.authStore.logout()" 
+                            class="text-sm bg-red-500 hover:bg-red-700 px-3 py-1 rounded">
+                        🚪 Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 px-4">
+        
+        <!-- Formulario Crear/Editar Rig -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">
+                <span x-text="$store.rigsStore.isEditing ? '✏️ Editar Rig' : '➕ Crear Nuevo Rig'"></span>
+            </h2>
+            
+            <form @submit.prevent="$store.rigsStore.saveRig()">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Título *</label>
+                        <input x-model="$store.rigsStore.rigForm.titulo" 
+                               type="text" 
+                               class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                               required
+                               placeholder="Mi Rig Gaming">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Imagen URL</label>
+                        <input x-model="$store.rigsStore.rigForm.imagen_principal_url" 
+                               type="text" 
+                               class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="https://ejemplo.com/imagen.jpg">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Descripción</label>
+                        <textarea x-model="$store.rigsStore.rigForm.descripcion" 
+                                  class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
+                                  placeholder="Describe tu configuración..."></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex gap-2">
+                    <button type="submit" 
+                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                            x-text="$store.rigsStore.isEditing ? '💾 Actualizar Rig' : '➕ Publicar Rig'">
+                    </button>
+                    
+                    <button type="button" 
+                            x-show="$store.rigsStore.isEditing" 
+                            @click="$store.rigsStore.resetForm()"
+                            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        ❌ Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Lista de Rigs -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <template x-for="rig in $store.rigsStore.rigs" :key="rig._id">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+                    <!-- Imagen -->
+                    <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500">
+                        <template x-if="rig.imagen_principal_url">
+                            <img :src="rig.imagen_principal_url" 
+                                 class="w-full h-full object-cover"
+                                 alt="Rig image">
+                        </template>
+                        <template x-if="!rig.imagen_principal_url">
+                            <div class="w-full h-full flex items-center justify-center text-white text-6xl">
+                                💻
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <!-- Contenido -->
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1" x-text="rig.titulo"></h3>
+                        <p class="text-xs text-gray-500 mb-2">
+                            Por: <span x-text="rig.user_id?.username || 'Desconocido'"></span>
+                        </p>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2" x-text="rig.descripcion || 'Sin descripción'"></p>
+
+                        <!-- Acciones -->
+                        <div class="flex justify-between items-center border-t pt-3">
+                            <template x-if="$store.authStore.isOwner(rig.user_id)">
+                                <div class="flex gap-2">
+                                    <button @click="$store.rigsStore.prepareEdit(rig)" 
+                                            class="text-green-600 hover:text-green-800 text-sm font-bold">
+                                        ✏️ Editar
+                                    </button>
+                                    <button @click="$store.rigsStore.deleteRig(rig._id)" 
+                                            class="text-red-500 hover:text-red-700 text-sm font-bold">
+                                        🗑️ Borrar
+                                    </button>
+                                </div>
+                            </template>
+                            
+                            <template x-if="!$store.authStore.isOwner(rig.user_id)">
+                                <span class="text-gray-400 text-xs italic">👀 Solo lectura</span>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            
+            <!-- Estado vacío -->
+            <div x-show="$store.rigsStore.rigs.length === 0" 
+                 class="col-span-full bg-white rounded-lg shadow p-8 text-center text-gray-500">
+                <p class="text-lg">📭 No hay rigs publicados todavía</p>
+                <p class="text-sm mt-2">¡Sé el primero en compartir tu configuración!</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
